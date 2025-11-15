@@ -136,7 +136,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             ghost.updateDirection(ghost.controlDirection, walls);
         }
 
-        if (pacman.controlDirection != null) {
+        if (pacman.controlDirection != null && !borderReached(pacman)) {
             pacman.updateDirection(pacman.controlDirection, walls);
         }
 
