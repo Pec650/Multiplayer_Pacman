@@ -171,7 +171,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         pacman.y += pacman.velocityY;
 
         /* PACMAN TELEPORT */
-        System.out.println(pacman.x + " | " + pacman.y);
         if (pacman.x < -tileSize) {
             pacman.x = windowWidth + tileSize;
         } else if (pacman.x > windowWidth + tileSize) {
