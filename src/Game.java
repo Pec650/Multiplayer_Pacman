@@ -62,6 +62,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         this.windowHeight = windowHeight;
 
         setPreferredSize(new Dimension(windowWidth, windowHeight));
+        setMinimumSize(new Dimension(windowWidth, windowHeight));
         setBackground(Color.black);
         addKeyListener(this);
         setFocusable(true);
