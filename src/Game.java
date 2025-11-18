@@ -41,7 +41,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             "X    X       X    X",
             "X XXXXX X X XXXXX X",
             "X       X X       X",
-            "XXXXXXXXX)XXXXXXXXX"
+            "XXXXXXXXXOXXXXXXXXX"
     };
 
     HashSet<Tile> walls;
@@ -67,7 +67,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
         setFocusable(true);
 
-        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/wall.png"))).getImage();
+        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Horizontal-Wall.png"))).getImage();
         powerFoodImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/powerFood.png"))).getImage();
 
         loadMap();
@@ -93,7 +93,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                         walls.add(new Tile(wallImage, x, y, tileSize, tileSize));
                         break;
                     case 'G':
-                        ghost = new Ghost(Ghost.GhostColor.BLUE, x, y, tileSize, tileSize);
+                        ghost = new Ghost(Ghost.GhostColor.RED, x, y, tileSize, tileSize);
                         break;
                     case 'P':
                         pacman = new Pacman(x, y, tileSize, tileSize);
@@ -112,6 +112,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void draw(Graphics g) {
+
+
         for (Tile wall : walls) {
             g.drawImage(wall.sprite, wall.x, wall.y, wall.width, wall.height, null);
         }
@@ -122,7 +124,9 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
 
         g.drawImage(ghost.sprite, ghost.x, ghost.y, ghost.width, ghost.height, null);
+        ghost.updateSprites();
         g.drawImage(pacman.sprite, pacman.x, pacman.y, pacman.width, pacman.height, null);
+        pacman.updateSprites();
 
         g.setFont(new Font("Arial", Font.PLAIN, 18));
         if (gameOver) {
@@ -133,6 +137,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void move() {
+        boolean isMoving;
+
         if (ghost.controlDirection != null) {
             ghost.updateDirection(ghost.controlDirection, walls);
         }
@@ -145,17 +151,27 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         ghost.x += ghost.velocityX;
         ghost.y += ghost.velocityY;
 
+        isMoving = true;
+
         if (borderReached(ghost)) {
             ghost.x -= ghost.velocityX;
             ghost.y -= ghost.velocityY;
+            ghost.updateState(Ghost.States.IDLE);
+            isMoving = false;
         } else {
             for (Tile wall : walls) {
                 if (ghost.collided(wall)) {
                     ghost.x -= ghost.velocityX;
                     ghost.y -= ghost.velocityY;
+                    ghost.updateState(Ghost.States.IDLE);
+                    isMoving = false;
                     break;
                 }
             }
+        }
+
+        if (isMoving && !(ghost.velocityX == 0 && ghost.velocityY == 0)) {
+            ghost.updateState(Ghost.States.MOVE);
         }
 
         // <-- PACMAN MOVEMENT --> //
@@ -184,12 +200,19 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             pacman.y = -tileSize;
         }
 
+        isMoving = true;
         for (Tile wall : walls) {
             if (pacman.collided(wall)) {
                 pacman.x -= pacman.velocityX;
                 pacman.y -= pacman.velocityY;
+                pacman.updateState(Pacman.States.IDLE);
+                isMoving = false;
                 break;
             }
+        }
+
+        if (isMoving && !(pacman.velocityX == 0 && pacman.velocityY == 0)) {
+            pacman.updateState(Pacman.States.MOVE);
         }
 
         Tile foodEaten = null;

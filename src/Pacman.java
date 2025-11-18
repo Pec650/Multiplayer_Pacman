@@ -10,30 +10,51 @@ public class Pacman extends Entity {
     private final int TOTAL_LIVES = 3;
     /* ---------------- */
 
-    private int lives = TOTAL_LIVES;
+    private int lives = 3;
     public Direction controlDirection = null;
 
-    private BufferedImage up, down, left, right;
+    private BufferedImage[] move;
     public BufferedImage sprite;
+
+    enum States {
+        START, IDLE, MOVE, DEATH;
+    }
+    private States currentState = States.START;
+    private int curFrame = 0;
 
     Pacman(int x, int y, int width, int height) {
         super(null, x, y, width, height);
-
         setSprites();
-        updateDirection(Direction.R, null);
     }
 
     private void setSprites() {
-        try {
+        move = setSpriteFrames("./Sprites/Pacman/Move.png", 7, 1, 7, 16, 16);
+    }
 
-            up = ImageIO.read(getClass().getResource("./Sprites/Pacman/Up.png"));
-            down = ImageIO.read(getClass().getResource("./Sprites/Pacman/Down.png"));
-            left = ImageIO.read(getClass().getResource("./Sprites/Pacman/Left.png"));
-            right = ImageIO.read(getClass().getResource("./Sprites/Pacman/Right.png"));
-
-        } catch(IOException e) {
-            e.printStackTrace();
+    public void updateSprites() {
+        double degrees = 0.0;
+        switch(direction) {
+            case U -> degrees = -90;
+            case D -> degrees = 90;
+            case L -> degrees = 180;
+            case R -> degrees = 0;
         }
+
+        switch (currentState) {
+            case START:
+                sprite = move[0];
+                break;
+            case IDLE:
+                sprite = rotateSprite(move[3], degrees);
+                break;
+            case MOVE:
+                sprite = rotateSprite(move[(curFrame++) % 7], degrees);
+                break;
+        }
+    }
+
+    public void updateState(States newState) {
+        currentState = newState;
     }
 
     public void loseLife() {
@@ -78,18 +99,13 @@ public class Pacman extends Entity {
         if (allowUpdate) {
             controlDirection = null;
         }
-
-        switch(direction) {
-            case U -> sprite = up;
-            case D -> sprite = down;
-            case L -> sprite = left;
-            case R -> sprite = right;
-        }
     }
 
     public void reset() {
         x = startX;
         y = startY;
-        updateDirection(Direction.R, null);
+        direction = Direction.STOP;
+        updateVelocity();
+        currentState = States.START;
     }
 }

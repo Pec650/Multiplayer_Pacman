@@ -2,9 +2,9 @@ import java.awt.*;
 
 public class Entity extends Tile {
     public enum Direction {
-        U, D, L, R
+        STOP, U, D, L, R
     }
-    protected Direction direction = Direction.U;
+    protected Direction direction = Direction.STOP;
     protected int velocityX = 0;
     protected int velocityY = 0;
     private int speed;
@@ -16,6 +16,10 @@ public class Entity extends Tile {
 
     protected void updateVelocity() {
         switch(direction) {
+            case STOP:
+                velocityX = 0;
+                velocityY = 0;
+                break;
             case U:
                 velocityX = 0;
                 velocityY = -speed;

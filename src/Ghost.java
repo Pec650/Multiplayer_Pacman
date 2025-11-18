@@ -15,32 +15,64 @@ public class Ghost extends Entity {
 
     public Direction controlDirection = null;
 
-    private BufferedImage up, down, left, right;
+    private BufferedImage start;
+    private BufferedImage[] up, down, left, right;
     public BufferedImage sprite;
+
+    enum States {
+        START, IDLE, MOVE;
+    }
+    private States currentState = States.START;
+    private int curFrame = 0;
 
     Ghost(GhostColor color, int x, int y, int width, int height) {
         super(null, x, y, width, height);
         setSprites(color);
-        sprite = right;
     }
 
     private void setSprites(GhostColor color) {
-        try {
 
-            String ghostDIR = "";
+        String ghostDIR = "";
 
-            switch (color) {
-                case color.BLUE -> ghostDIR = "BlueGhost";
-                case color.ORANGE -> ghostDIR = "OrangeGhost";
-                case color.PINK -> ghostDIR = "PinkGhost";
-                case color.RED -> ghostDIR = "RedGhost";
-            }
-
-            right = ImageIO.read(getClass().getResource("./Sprites/" + ghostDIR +"/Right.png"));
-
-        } catch(IOException e) {
-            e.printStackTrace();
+        switch (color) {
+            case color.BLUE -> ghostDIR = "BlueGhost";
+            case color.ORANGE -> ghostDIR = "OrangeGhost";
+            case color.PINK -> ghostDIR = "PinkGhost";
+            case color.RED -> ghostDIR = "RedGhost";
         }
+
+        try {
+            start = ImageIO.read(getClass().getResource("./Sprites/" + ghostDIR +"/Start.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        up = setSpriteFrames("./Sprites/" + ghostDIR +"/Up.png", 9, 1, 9, 16, 16);
+        down = setSpriteFrames("./Sprites/" + ghostDIR +"/Down.png", 9, 1, 9, 16, 16);
+        left = setSpriteFrames("./Sprites/" + ghostDIR +"/Left.png", 9, 1, 9, 16, 16);
+        right = setSpriteFrames("./Sprites/" + ghostDIR +"/Right.png", 9, 1, 9, 16, 16);
+    }
+
+    public void updateSprites() {
+        switch (currentState) {
+            case START:
+                sprite = start;
+            case IDLE:
+                break;
+            case MOVE:
+                switch(direction) {
+                    case U -> sprite = up[curFrame];
+                    case D -> sprite = down[curFrame];
+                    case L -> sprite = left[curFrame];
+                    case R -> sprite = right[curFrame];
+                }
+                curFrame = (curFrame + 1) % 9;
+                break;
+        }
+    }
+
+    public void updateState(States newState) {
+        currentState = newState;
     }
 
     public void updateDirection(Direction direction, HashSet<Tile> walls) {
@@ -71,5 +103,13 @@ public class Ghost extends Entity {
         if (allowUpdate) {
             controlDirection = null;
         }
+    }
+
+    public void reset() {
+        x = startX;
+        y = startY;
+        direction = Direction.STOP;
+        updateVelocity();
+        currentState = Ghost.States.START;
     }
 }
