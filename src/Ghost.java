@@ -16,14 +16,15 @@ public class Ghost extends Entity {
     public Direction controlDirection = null;
 
     private BufferedImage start;
-    private BufferedImage[] up, down, left, right;
+    private BufferedImage[] up, down, left, right, scared;
     public BufferedImage sprite;
 
     enum States {
-        START, IDLE, MOVE;
+        START, IDLE, MOVE, SCARED;
     }
     private States currentState = States.START;
     private int curFrame = 0;
+    private int scareTime = 0;
 
     Ghost(GhostColor color, int x, int y, int width, int height) {
         super(null, x, y, width, height);
@@ -51,6 +52,7 @@ public class Ghost extends Entity {
         down = setSpriteFrames("./Sprites/" + ghostDIR +"/Down.png", 9, 1, 9, 16, 16);
         left = setSpriteFrames("./Sprites/" + ghostDIR +"/Left.png", 9, 1, 9, 16, 16);
         right = setSpriteFrames("./Sprites/" + ghostDIR +"/Right.png", 9, 1, 9, 16, 16);
+        scared = setSpriteFrames("./Sprites/Scared_Ghost.png", 9, 1, 9, 16, 16);
     }
 
     public void updateSprites() {
@@ -60,19 +62,33 @@ public class Ghost extends Entity {
             case IDLE:
                 break;
             case MOVE:
+                curFrame = (curFrame + 1) % 9;
                 switch(direction) {
                     case U -> sprite = up[curFrame];
                     case D -> sprite = down[curFrame];
                     case L -> sprite = left[curFrame];
                     case R -> sprite = right[curFrame];
                 }
-                curFrame = (curFrame + 1) % 9;
+
                 break;
+            case SCARED:
+                curFrame = (curFrame + 1) % 9;
+                sprite = scared[curFrame];
+                scareTime -= 1;
+                if (scareTime <= 0) {
+                    x = Math.abs(x/32) * 32;
+                    y = Math.abs(y/32) * 32;
+                    sprite = start;
+                    currentState = States.MOVE;
+                    updateSpeed(4);
+                }
         }
     }
 
     public void updateState(States newState) {
-        currentState = newState;
+        if (currentState != States.SCARED) {
+            currentState = newState;
+        }
     }
 
     public void updateDirection(Direction direction, HashSet<Tile> walls) {
@@ -105,11 +121,17 @@ public class Ghost extends Entity {
         }
     }
 
+    public void setAsScared() {
+        scareTime = 150;
+        updateSpeed(8);
+        currentState = States.SCARED;
+    }
+
     public void reset() {
         x = startX;
         y = startY;
         direction = Direction.STOP;
-        updateVelocity();
+        updateSpeed(4);
         currentState = Ghost.States.START;
     }
 }

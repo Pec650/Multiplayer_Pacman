@@ -23,7 +23,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private String[] tileMap = {
             "XXXXXXXXXOXXXXXXXXX",
             "X       X X       X",
-            "X XX XX X X XX XX X",
+            "X*XX XX X X XX XX*X",
             "X                 X",
             "X XX X XXXXX X XX X",
             "X    X       X    X",
@@ -39,13 +39,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             "X  X     P     X  X",
             "XX X X XXXXX X X XX",
             "X    X       X    X",
-            "X XXXXX X X XXXXX X",
+            "X*XXXXX X X XXXXX*X",
             "X       X X       X",
             "XXXXXXXXXOXXXXXXXXX"
     };
 
     HashSet<Tile> walls;
     HashSet<Tile> foods;
+    HashSet<PowerPellet> powerPelletes;
     Ghost ghost;
     Pacman pacman;
 
@@ -68,7 +69,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
 
         wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Wall.png"))).getImage();
-        powerFoodImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/powerFood.png"))).getImage();
 
         loadMap();
 
@@ -79,6 +79,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void loadMap() {
         walls = new HashSet<>();
         foods = new HashSet<>();
+        powerPelletes = new HashSet<>();
 
         for (int r = 0; r < rowCount; r++) {
             for (int c = 0; c < columnCount; c++) {
@@ -98,6 +99,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                     case 'P':
                         pacman = new Pacman(x, y, tileSize, tileSize);
                         break;
+                    case '*':
+                        powerPelletes.add(new PowerPellet(x, y, tileSize, tileSize));
                     case ' ':
                         foods.add(new Tile(null, x + 14, y + 14, 4, 4));
                         break;
@@ -112,8 +115,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void draw(Graphics g) {
-
-
         for (Tile wall : walls) {
             g.drawImage(wall.sprite, wall.x, wall.y, wall.width, wall.height, null);
         }
@@ -121,6 +122,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         g.setColor(Color.white);
         for (Tile food : foods) {
             g.fillRect(food.x, food.y, food.width, food.height);
+        }
+
+        for (PowerPellet pallete : powerPelletes) {
+            g.drawImage(pallete.sprite, pallete.x, pallete.y, pallete.width, pallete.height, null);
+            pallete.updateSprites();
         }
 
         g.drawImage(ghost.sprite, ghost.x, ghost.y, ghost.width, ghost.height, null);
@@ -223,6 +229,17 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             }
         }
         foods.remove(foodEaten);
+
+        PowerPellet eatenPalette = null;
+        for (PowerPellet pallete : powerPelletes) {
+            if (pacman.collided(pallete)) {
+                eatenPalette = pallete;
+                score += 20;
+                ghost.setAsScared();
+            }
+        }
+        powerPelletes.remove(eatenPalette);
+
     }
 
     public boolean borderReached(Entity a) {
