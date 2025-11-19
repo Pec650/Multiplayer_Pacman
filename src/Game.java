@@ -67,7 +67,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
         setFocusable(true);
 
-        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Horizontal-Wall.png"))).getImage();
+        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Wall.png"))).getImage();
         powerFoodImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/powerFood.png"))).getImage();
 
         loadMap();
