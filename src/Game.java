@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
-    private final int FPS = 30;
+    private final int FPS = 24;
     private int tileSize;
     private int rowCount;
     private int columnCount;
@@ -43,6 +43,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             "X       X X       X",
             "XXXXXXXXXOXXXXXXXXX"
     };
+    private boolean[][] gridMap;
 
     HashSet<Tile> walls;
     HashSet<Tile> foods;
@@ -77,6 +78,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void loadMap() {
+        gridMap = new boolean[rowCount][columnCount];
         walls = new HashSet<>();
         foods = new HashSet<>();
         powerPelletes = new HashSet<>();
@@ -105,7 +107,21 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                         foods.add(new Tile(null, x + 14, y + 14, 4, 4));
                         break;
                 }
+
+                if (tileMapChar == 'X') {
+                    gridMap[r][c] = true;
+                } else {
+                    gridMap[r][c] = false;
+                }
             }
+        }
+
+        for (int r = 0; r < rowCount; r++) {
+            for (int c = 0; c < columnCount; c++) {
+                int print = (gridMap[r][c]) ? 1 : 0;
+                System.out.printf("%d ", print);
+            }
+            System.out.println();
         }
     }
 
@@ -151,6 +167,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         if (pacman.controlDirection != null && !borderReached(pacman)) {
             pacman.updateDirection(pacman.controlDirection, walls);
+        }
+
+        if (ghost.isScared()) {
+            ghost.pathFind(gridMap, ghost.startX, ghost.startY, walls);
         }
 
         // <-- GHOST MOVEMENT --> //
