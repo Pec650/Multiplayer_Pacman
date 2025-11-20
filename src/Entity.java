@@ -12,6 +12,7 @@ public class Entity extends Tile {
     Entity(Image sprite, int x, int y, int width, int height) {
         super(sprite, x, y, width, height);
         updateSpeed(4);
+        //s
     }
 
     public void updateSpeed(int speed) {
