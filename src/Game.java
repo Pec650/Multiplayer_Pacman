@@ -7,7 +7,15 @@ import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.Objects;
 
+
+
+
 public class Game extends JPanel implements ActionListener, KeyListener {
+
+
+
+    MusicPlayer music = new MusicPlayer();  // <--- add this
+
     private final int FPS = 24;
     private int tileSize;
     private int rowCount;
@@ -74,6 +82,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         loadMap();
 
         gameLoop = new Timer(1000 / FPS, this);
+        music.playLoop(getClass().getResource("./Sprites/pacman_chomp.wav"));
         gameLoop.start();
     }
 
@@ -161,16 +170,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void move() {
         boolean isMoving;
 
+
         if (ghost.controlDirection != null) {
             ghost.updateDirection(ghost.controlDirection, walls);
         }
 
         if (pacman.controlDirection != null && !borderReached(pacman)) {
             pacman.updateDirection(pacman.controlDirection, walls);
-        }
-
-        if (ghost.isScared()) {
-            ghost.pathFind(gridMap, ghost.startX, ghost.startY, walls);
         }
 
         // <-- GHOST MOVEMENT --> //
@@ -202,33 +208,52 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         // <-- PACMAN MOVEMENT --> //
         if (pacman.collided(ghost)) {
-            pacman.loseLife();
-            if (pacman.getLives() == 0) {
-                gameOver = true;
-                return;
+
+            if (ghost.isScared()) {
+                SoundPlayer.playOnce(App.class.getResource("/Sprites/tasty.wav"));
+                ghost.reset();
             }
-            resetPositions();
+            else {
+                SoundPlayer.playOnce(App.class.getResource("/Sprites/pacman_death.wav"));
+                pacman.loseLife();
+                if (pacman.getLives() == 0) {
+                    gameOver = true;
+                    return;
+                }
+                resetPositions();
+            }
+
         }
 
         pacman.x += pacman.velocityX;
         pacman.y += pacman.velocityY;
 
+
+
         /* PACMAN TELEPORT */
         if (pacman.x < -tileSize) {
             pacman.x = windowWidth + tileSize;
+            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
         } else if (pacman.x > windowWidth + tileSize) {
             pacman.x = -tileSize;
+            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+
         }
 
         if (pacman.y < -tileSize) {
             pacman.y = windowHeight + tileSize;
+            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+
         } else if (pacman.y > windowHeight + tileSize) {
             pacman.y = -tileSize;
+            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+
         }
 
         isMoving = true;
         for (Tile wall : walls) {
             if (pacman.collided(wall)) {
+
                 pacman.x -= pacman.velocityX;
                 pacman.y -= pacman.velocityY;
                 pacman.updateState(Pacman.States.IDLE);
@@ -239,7 +264,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         if (isMoving && !(pacman.velocityX == 0 && pacman.velocityY == 0)) {
             pacman.updateState(Pacman.States.MOVE);
+            if (!music.isPlaying()) {
+                music.playLoop(getClass().getResource("./Sprites/pacman_chomp.wav"));
+            }
         }
+        else {
+            music.stop();
+        }
+
 
         Tile foodEaten = null;
         for (Tile food : foods) {
@@ -253,6 +285,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         PowerPellet eatenPalette = null;
         for (PowerPellet pallete : powerPelletes) {
             if (pacman.collided(pallete)) {
+                SoundPlayer.playOnce(App.class.getResource("/Sprites/pacman_eatfruit.wav"));
                 eatenPalette = pallete;
                 score += 20;
                 ghost.setAsScared();

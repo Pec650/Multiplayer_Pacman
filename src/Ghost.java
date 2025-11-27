@@ -131,24 +131,6 @@ public class Ghost extends Entity {
         return currentState == States.SCARED;
     }
 
-    public void pathFind(boolean[][] grid, int destX, int destY, HashSet<Tile> walls) {
-        Coordination newPos = new Coordination();
-        newPos.FirstPathFinder(grid, x, y, destX, destY);
-        if (newPos.x == x && newPos.y < y) {
-            updateDirection(Direction.U, walls); // GO UP
-            System.out.println(Direction.U);
-        } else if (newPos.x == x && newPos.y > y) {
-            updateDirection(Direction.D, walls); // GO DOWN
-            System.out.println(Direction.D);
-        } else if (newPos.x < x && newPos.y == y) {
-            updateDirection(Direction.L, walls); // GO LEFT
-            System.out.println(Direction.L);
-        } else if (newPos.x > x && newPos.y == y) {
-            updateDirection(Direction.R, walls); // GO RIGHT
-            System.out.println(Direction.R);
-        }
-    }
-
     public void reset() {
         x = startX;
         y = startY;
