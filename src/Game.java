@@ -243,7 +243,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (pacman.y < -tileSize) {
             pacman.y = windowHeight + tileSize;
             SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
-
+//yes
         } else if (pacman.y > windowHeight + tileSize) {
             pacman.y = -tileSize;
             SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
