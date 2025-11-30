@@ -4,8 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
-import java.io.File;
-import javax.sound.sampled.*;
 
 public class App implements KeyListener {
      JFrame window = new JFrame("Pacman");
@@ -19,6 +17,12 @@ public class App implements KeyListener {
      int columnCount = 19;
      int windowWidth = tileSize * columnCount;
      int windowHeight = tileSize * rowCount;
+
+     final int actualWindowWidth = windowWidth + 50;
+     final int actualWindowHeight = windowHeight + 50;
+
+     Settings appSettings = new Settings();
+
      public static boolean startMusic = true;
 
      public static void main(String[] args) {
@@ -27,11 +31,12 @@ public class App implements KeyListener {
      }
 
      public void init() {
-         window.setSize(windowWidth, windowHeight);
+         window.setSize(actualWindowWidth, actualWindowHeight);
+         window.setResizable(false);
          window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
          window.addKeyListener(this);
          if (startMusic) {
-             music.playLoop(getClass().getResource("./Sprites/begin.wav"));
+             music.playLoop(getClass().getResource("SoundEffects/begin.wav"));
          }
 
          currentState = AppStates.START;
@@ -108,7 +113,8 @@ public class App implements KeyListener {
          gbc.weighty = 1.0;
          gbc.anchor = GridBagConstraints.CENTER;
 
-         Game pacmanGame = new Game(tileSize, rowCount, columnCount, windowWidth, windowHeight);
+         Game pacmanGame = new Game(tileSize, rowCount, columnCount, windowWidth, windowHeight, window, appSettings);
+         pacmanGame.setBorder(BorderFactory.createLineBorder(Color.BLUE));
          window.add(pacmanGame, gbc);
 
          pacmanGame.requestFocus();
@@ -120,6 +126,10 @@ public class App implements KeyListener {
 
      @Override
      public void keyPressed(KeyEvent e) {
+             if (e.getKeyCode() == KeyEvent.VK_T) {
+                 appSettings.toggleFullScreen(window);
+             }
+
             switch (currentState) {
                 case START:
                     if(e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -127,7 +137,10 @@ public class App implements KeyListener {
                         music.stop();
                         startGame();
                     }
+                    break;
             }
+
+
      }
 
      @Override

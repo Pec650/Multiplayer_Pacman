@@ -1,4 +1,3 @@
-import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,14 +7,11 @@ import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.Objects;
 
-
-
-
 public class Game extends JPanel implements ActionListener, KeyListener {
 
-
-
     MusicPlayer music = new MusicPlayer();  // <--- add this
+    private JFrame appWindow;
+    private Settings appSettings;
 
     private final int FPS = 24;
     private int tileSize;
@@ -64,12 +60,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     Timer gameLoop;
 
-    Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight) {
+    Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight, JFrame window, Settings appSettings) {
         this.tileSize = tileSize;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
+        this.appWindow = window;
+        this.appSettings = appSettings;
 
         setPreferredSize(new Dimension(windowWidth, windowHeight));
         setMinimumSize(new Dimension(windowWidth, windowHeight));
@@ -82,7 +80,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         loadMap();
 
         gameLoop = new Timer(1000 / FPS, this);
-        music.playLoop(getClass().getResource("./Sprites/pacman_chomp.wav"));
+        music.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
         gameLoop.start();
     }
 
@@ -194,11 +192,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (pacman.collided(ghost)) {
 
             if (ghost.isScared()) {
-                SoundPlayer.playOnce(App.class.getResource("/Sprites/tasty.wav"));
+                SoundPlayer.playOnce(App.class.getResource("/SoundEffects/tasty.wav"));
                 ghost.reset();
             }
             else {
-                SoundPlayer.playOnce(App.class.getResource("/Sprites/pacman_death.wav"));
+                SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_death.wav"));
                 pacman.loseLife();
                 if (pacman.getLives() == 0) {
                     gameOver = true;
@@ -217,20 +215,20 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         /* PACMAN TELEPORT */
         if (pacman.x < -tileSize) {
             pacman.x = windowWidth + tileSize;
-            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+            SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
         } else if (pacman.x > windowWidth + tileSize) {
             pacman.x = -tileSize;
-            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+            SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
 
         }
 
         if (pacman.y < -tileSize) {
             pacman.y = windowHeight + tileSize;
-            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+            SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
 //y
         } else if (pacman.y > windowHeight + tileSize) {
             pacman.y = -tileSize;
-            SoundPlayer.playOnce(App.class.getResource("/Sprites/dbz.wav"));
+            SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
 
         }
 
@@ -249,7 +247,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (isMoving && !(pacman.velocityX == 0 && pacman.velocityY == 0)) {
             pacman.updateState(Pacman.States.MOVE);
             if (!music.isPlaying()) {
-                music.playLoop(getClass().getResource("./Sprites/pacman_chomp.wav"));
+                music.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
             }
         }
         else {
@@ -269,7 +267,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         PowerPellet eatenPalette = null;
         for (PowerPellet pallete : powerPelletes) {
             if (pacman.collided(pallete)) {
-                SoundPlayer.playOnce(App.class.getResource("/Sprites/pacman_eatfruit.wav"));
+                SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_eatfruit.wav"));
                 eatenPalette = pallete;
                 score += 20;
                 ghost.setAsScared();
@@ -308,6 +306,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             score = 0;
             gameOver = false;
             gameLoop.start();
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_T) {
+            appSettings.toggleFullScreen(appWindow);
         }
 
         switch (e.getKeyCode()) {

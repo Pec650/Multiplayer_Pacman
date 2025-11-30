@@ -15,8 +15,7 @@ public class Ghost extends Entity {
 
     public Direction controlDirection = null;
 
-    private BufferedImage start;
-    private BufferedImage[] up, down, left, right, scared;
+    private BufferedImage[] start, up, down, left, right, scared;
     public BufferedImage sprite;
 
     enum States {
@@ -42,12 +41,7 @@ public class Ghost extends Entity {
             case color.RED -> ghostDIR = "RedGhost";
         }
 
-        try {
-            start = ImageIO.read(getClass().getResource("./Sprites/" + ghostDIR +"/Start.png"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+        start = setSpriteFrames("./Sprites/" + ghostDIR +"/Start.png", 9, 1, 9, 16, 16);
         up = setSpriteFrames("./Sprites/" + ghostDIR +"/Up.png", 9, 1, 9, 16, 16);
         down = setSpriteFrames("./Sprites/" + ghostDIR +"/Down.png", 9, 1, 9, 16, 16);
         left = setSpriteFrames("./Sprites/" + ghostDIR +"/Left.png", 9, 1, 9, 16, 16);
@@ -58,8 +52,9 @@ public class Ghost extends Entity {
     public void updateSprites() {
         switch (currentState) {
             case START:
-                sprite = start;
             case IDLE:
+                curFrame = (curFrame + 1) % 9;
+                sprite = start[curFrame];
                 break;
             case MOVE:
                 curFrame = (curFrame + 1) % 9;
@@ -69,7 +64,6 @@ public class Ghost extends Entity {
                     case L -> sprite = left[curFrame];
                     case R -> sprite = right[curFrame];
                 }
-
                 break;
             case SCARED:
                 curFrame = (curFrame + 1) % 9;
@@ -78,7 +72,8 @@ public class Ghost extends Entity {
                 if (scareTime <= 0) {
                     x = Math.abs(x/32) * 32;
                     y = Math.abs(y/32) * 32;
-                    sprite = start;
+                    curFrame = 0;
+                    sprite = start[curFrame];
                     currentState = States.MOVE;
                     updateSpeed(4);
                 }
