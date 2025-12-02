@@ -115,4 +115,8 @@ public class Pacman extends Entity {
         updateVelocity();
         currentState = States.START;
     }
+
+    public void stop() {
+        pacmanSoundEffect.stop();
+    }
 }

@@ -152,7 +152,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     public void move() {
         if (foods.isEmpty()) {
-            gameOver = true;
+            endGame();
+            return;
         }
 
         boolean isMoving;
@@ -202,6 +203,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_death.wav"));
                 pacman.loseLife();
                 if (pacman.getLives() == 0) {
+                    endGame();
                     return;
                 }
                 resetPositions();
@@ -280,29 +282,22 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         pacman.reset();
     }
 
+    private void endGame() {
+        gameOver = true;
+        pacman.updateState(Pacman.States.IDLE);
+        ghost.updateState(Ghost.States.IDLE);
+        gameLoop.stop();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         // Updates every 24 frames per second
-        if (gameOver) {
-            gameLoop.stop();
-            app.resetScreen();
-        } else {
-            move();
-            repaint();
-        }
+        move();
+        repaint();
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (gameOver) {
-            loadMap();
-            resetPositions();
-            pacman.resetLife();
-            score = 0;
-            gameOver = false;
-            gameLoop.start();
-        }
-
         if (e.getKeyCode() == KeyEvent.VK_T) {
             appSettings.toggleFullScreen(app.window);
         }

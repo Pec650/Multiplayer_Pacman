@@ -94,7 +94,7 @@ public class Ghost extends Entity {
                     y = Math.abs(y/32) * 32;
                     curFrame = 0;
                     sprite = start[curFrame];
-                    currentState = States.MOVE;
+                    currentState = States.START;
                     updateSpeed(4);
                 }
                 break;
@@ -181,5 +181,9 @@ public class Ghost extends Entity {
         direction = Direction.STOP;
         updateSpeed(4);
         currentState = Ghost.States.START;
+    }
+
+    public void stop() {
+        ghostSoundEffect.stop();
     }
 }
