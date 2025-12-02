@@ -22,6 +22,8 @@ public class Pacman extends Entity {
     private States currentState = States.START;
     private int curFrame = 0;
 
+    private MusicPlayer pacmanSoundEffect = new MusicPlayer();  // <--- Pacman Sound Effects
+
     Pacman(int x, int y, int width, int height) {
         super(null, x, y, width, height);
         setSprites();
@@ -43,12 +45,17 @@ public class Pacman extends Entity {
         switch (currentState) {
             case START:
                 sprite = move[0];
+                pacmanSoundEffect.stop();
                 break;
             case IDLE:
                 sprite = rotateSprite(move[3], degrees);
+                pacmanSoundEffect.stop();
                 break;
             case MOVE:
                 sprite = rotateSprite(move[(curFrame++) % 7], degrees);
+                if (!pacmanSoundEffect.isPlaying()) {
+                    pacmanSoundEffect.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
+                }
                 break;
         }
     }

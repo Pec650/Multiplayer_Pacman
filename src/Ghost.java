@@ -19,11 +19,15 @@ public class Ghost extends Entity {
     public BufferedImage sprite;
 
     enum States {
-        START, IDLE, MOVE, SCARED;
+        START, IDLE, MOVE, SCARED, RESPAWNED;
     }
     private States currentState = States.START;
     private int curFrame = 0;
     private int scareTime = 0;
+    private int blinkFrame = 0;
+    private int respawnTime = 75;
+
+    private MusicPlayer ghostSoundEffect = new MusicPlayer();  // <--- Pacman Sound Effects
 
     Ghost(GhostColor color, int x, int y, int width, int height) {
         super(null, x, y, width, height);
@@ -55,6 +59,7 @@ public class Ghost extends Entity {
             case IDLE:
                 curFrame = (curFrame + 1) % 9;
                 sprite = start[curFrame];
+                ghostSoundEffect.stop();
                 break;
             case MOVE:
                 curFrame = (curFrame + 1) % 9;
@@ -64,12 +69,27 @@ public class Ghost extends Entity {
                     case L -> sprite = left[curFrame];
                     case R -> sprite = right[curFrame];
                 }
+                if (!ghostSoundEffect.isPlaying()) {
+                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                }
                 break;
             case SCARED:
+                if (!ghostSoundEffect.isPlaying()) {
+                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_scared_move.wav"));
+                }
                 curFrame = (curFrame + 1) % 9;
-                sprite = scared[curFrame];
                 scareTime -= 1;
+                if (scareTime < 50) {
+                    blinkFrame = (blinkFrame + 1) % 4;
+                }
+                if (blinkFrame > 2) {
+                    sprite = null;
+                } else {
+                    sprite = scared[curFrame];
+                }
                 if (scareTime <= 0) {
+                    blinkFrame = 0;
+                    ghostSoundEffect.stop();
                     x = Math.abs(x/32) * 32;
                     y = Math.abs(y/32) * 32;
                     curFrame = 0;
@@ -77,6 +97,22 @@ public class Ghost extends Entity {
                     currentState = States.MOVE;
                     updateSpeed(4);
                 }
+                break;
+            case RESPAWNED:
+                ghostSoundEffect.stop();
+                curFrame = (curFrame + 1) % 9;
+                scareTime -= 1;
+                blinkFrame = (blinkFrame + 1) % 4;
+                if (blinkFrame > 2) {
+                    sprite = null;
+                } else {
+                    sprite = start[curFrame];
+                }
+                respawnTime -= 1;
+                if (respawnTime <= 0) {
+                    currentState = States.START;
+                }
+                break;
         }
     }
 
@@ -87,7 +123,7 @@ public class Ghost extends Entity {
     }
 
     public void updateDirection(Direction direction, HashSet<Tile> walls) {
-        if (this.direction == direction) {
+        if (this.direction == direction || isRespawning()) {
             return;
         }
 
@@ -117,6 +153,8 @@ public class Ghost extends Entity {
     }
 
     public void setAsScared() {
+        ghostSoundEffect.stop();
+        blinkFrame = 0;
         scareTime = 150;
         updateSpeed(8);
         currentState = States.SCARED;
@@ -124,6 +162,17 @@ public class Ghost extends Entity {
 
     public boolean isScared() {
         return currentState == States.SCARED;
+    }
+
+    public boolean isRespawning() {
+        return currentState == States.RESPAWNED;
+    }
+
+    public void die() {
+        reset();
+        respawnTime = 75;
+        blinkFrame = 0;
+        currentState = Ghost.States.RESPAWNED;
     }
 
     public void reset() {

@@ -32,7 +32,7 @@ public class MusicPlayer {
     }
 
     public boolean isPlaying() {
-        return clip.isActive();
+        return clip != null && clip.isActive();
     }
 
 }

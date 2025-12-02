@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 
 public class App implements KeyListener {
-     JFrame window = new JFrame("Pacman");
+     public JFrame window = new JFrame("Pacman");
      MusicPlayer music = new MusicPlayer();  // <--- add this
      enum AppStates {
          START, GAME, WIN
@@ -35,11 +35,16 @@ public class App implements KeyListener {
          window.setResizable(false);
          window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
          window.addKeyListener(this);
+         startMenu();
+     }
+
+     public void startMenu() {
+         currentState = AppStates.START;
+         resetScreen();
+
          if (startMusic) {
              music.playLoop(getClass().getResource("SoundEffects/begin.wav"));
          }
-
-         currentState = AppStates.START;
 
          // Create start screen
          JPanel startScreen = new JPanel() {
@@ -85,7 +90,7 @@ public class App implements KeyListener {
              }
          };
 
-         startScreen.setBackground(Color.BLACK);  // optional
+         startScreen.setBackground(Color.BLACK);
          window.add(startScreen);
 
          window.setLocationRelativeTo(null);
@@ -96,7 +101,26 @@ public class App implements KeyListener {
      public void startGame() {
 
          currentState = AppStates.GAME;
+         resetScreen();
 
+         window.setLayout(new GridBagLayout());
+         GridBagConstraints gbc = new GridBagConstraints();
+         gbc.weightx = 1.0;
+         gbc.weighty = 1.0;
+         gbc.anchor = GridBagConstraints.CENTER;
+
+         Game pacmanGame = new Game(tileSize, rowCount, columnCount, windowWidth, windowHeight, this);
+         pacmanGame.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+         window.add(pacmanGame, gbc);
+
+         pacmanGame.requestFocus();
+
+         //window.setLocationRelativeTo(null);
+         window.setVisible(true);
+
+     }
+
+     private void resetScreen() {
          window.getContentPane().setBackground(Color.BLACK);
 
          Point windowPos = window.getLocation();
@@ -106,22 +130,6 @@ public class App implements KeyListener {
          window.repaint();
 
          window.setLocation(windowPos);
-
-         window.setLayout(new GridBagLayout());
-         GridBagConstraints gbc = new GridBagConstraints();
-         gbc.weightx = 1.0;
-         gbc.weighty = 1.0;
-         gbc.anchor = GridBagConstraints.CENTER;
-
-         Game pacmanGame = new Game(tileSize, rowCount, columnCount, windowWidth, windowHeight, window, appSettings);
-         pacmanGame.setBorder(BorderFactory.createLineBorder(Color.BLUE));
-         window.add(pacmanGame, gbc);
-
-         pacmanGame.requestFocus();
-
-         //window.setLocationRelativeTo(null);
-         window.setVisible(true);
-
      }
 
      @Override

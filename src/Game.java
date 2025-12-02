@@ -9,8 +9,6 @@ import java.util.Objects;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
 
-    MusicPlayer music = new MusicPlayer();  // <--- add this
-    private JFrame appWindow;
     private Settings appSettings;
 
     private final int FPS = 24;
@@ -19,9 +17,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private int columnCount;
     private int windowWidth;
     private int windowHeight;
+    private App app;
 
     private Image wallImage;
     private Image powerFoodImage;
+
 
     //X = wall, O = skip, P = pac man, ' ' = food
     //Ghosts: b = blue, o = orange, p = pink, r = red
@@ -60,14 +60,15 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     Timer gameLoop;
 
-    Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight, JFrame window, Settings appSettings) {
+    Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight, App app) {
         this.tileSize = tileSize;
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.windowWidth = windowWidth;
         this.windowHeight = windowHeight;
-        this.appWindow = window;
-        this.appSettings = appSettings;
+        this.app = app;
+
+        appSettings = new Settings();
 
         setPreferredSize(new Dimension(windowWidth, windowHeight));
         setMinimumSize(new Dimension(windowWidth, windowHeight));
@@ -80,7 +81,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         loadMap();
 
         gameLoop = new Timer(1000 / FPS, this);
-        music.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
         gameLoop.start();
     }
 
@@ -193,13 +193,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
             if (ghost.isScared()) {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/tasty.wav"));
-                ghost.reset();
-            }
-            else {
+                ghost.die();
+            } else if (!ghost.isRespawning()) {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_death.wav"));
                 pacman.loseLife();
                 if (pacman.getLives() == 0) {
-                    gameOver = true;
+                    app.startMenu();
                     return;
                 }
                 resetPositions();
@@ -209,8 +208,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         pacman.x += pacman.velocityX;
         pacman.y += pacman.velocityY;
-
-
 
         /* PACMAN TELEPORT */
         if (pacman.x < -tileSize) {
@@ -225,7 +222,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         if (pacman.y < -tileSize) {
             pacman.y = windowHeight + tileSize;
             SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
-//y
+
         } else if (pacman.y > windowHeight + tileSize) {
             pacman.y = -tileSize;
             SoundPlayer.playOnce(App.class.getResource("/SoundEffects/dbz.wav"));
@@ -235,7 +232,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         isMoving = true;
         for (Tile wall : walls) {
             if (pacman.collided(wall)) {
-
                 pacman.x -= pacman.velocityX;
                 pacman.y -= pacman.velocityY;
                 pacman.updateState(Pacman.States.IDLE);
@@ -246,12 +242,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
         if (isMoving && !(pacman.velocityX == 0 && pacman.velocityY == 0)) {
             pacman.updateState(Pacman.States.MOVE);
-            if (!music.isPlaying()) {
-                music.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
-            }
-        }
-        else {
-            music.stop();
         }
 
 
@@ -309,7 +299,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
 
         if (e.getKeyCode() == KeyEvent.VK_T) {
-            appSettings.toggleFullScreen(appWindow);
+            appSettings.toggleFullScreen(app.window);
         }
 
         switch (e.getKeyCode()) {
