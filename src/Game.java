@@ -151,6 +151,10 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     public void move() {
+        if (foods.isEmpty()) {
+            gameOver = true;
+        }
+
         boolean isMoving;
 
         if (ghost.controlDirection != null) {
@@ -198,7 +202,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_death.wav"));
                 pacman.loseLife();
                 if (pacman.getLives() == 0) {
-                    app.startMenu();
                     return;
                 }
                 resetPositions();
@@ -280,10 +283,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Updates every 24 frames per second
-        move();
-        repaint();
         if (gameOver) {
             gameLoop.stop();
+            app.resetScreen();
+        } else {
+            move();
+            repaint();
         }
     }
 

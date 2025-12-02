@@ -120,7 +120,7 @@ public class App implements KeyListener {
 
      }
 
-     private void resetScreen() {
+     public void resetScreen() {
          window.getContentPane().setBackground(Color.BLACK);
 
          Point windowPos = window.getLocation();
