@@ -20,7 +20,6 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private App app;
 
     private Image wallImage;
-    private Image powerFoodImage;
 
 
     //X = wall, O = skip, P = pac man, ' ' = food
@@ -49,16 +48,16 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             "XXXXXXXXXOXXXXXXXXX"
     };
 
-    HashSet<Tile> walls;
-    HashSet<Tile> foods;
-    HashSet<PowerPellet> powerPelletes;
-    Ghost ghost;
-    Pacman pacman;
+    private HashSet<Tile> walls;
+    private HashSet<Tile> foods;
+    private HashSet<PowerPellet> powerPelletes;
+    private Ghost ghost;
+    private Pacman pacman;
 
-    int score = 0;
-    boolean gameOver = false;
+    public int score = 0;
+    public boolean gameOver = false;
 
-    Timer gameLoop;
+    public Timer gameLoop;
 
     Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight, App app) {
         this.tileSize = tileSize;

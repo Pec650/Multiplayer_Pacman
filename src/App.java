@@ -7,23 +7,23 @@ import javax.imageio.ImageIO;
 
 public class App implements KeyListener {
      public JFrame window = new JFrame("Pacman");
-     MusicPlayer music = new MusicPlayer();  // <--- add this
+     private MusicPlayer music = new MusicPlayer();  // <--- add this
      enum AppStates {
          START, GAME, WIN
      }
      AppStates currentState = AppStates.START;
-     int tileSize = 32;
-     int rowCount = 21;
-     int columnCount = 19;
-     int windowWidth = tileSize * columnCount;
-     int windowHeight = tileSize * rowCount;
+     private int tileSize = 32;
+     private int rowCount = 21;
+     private int columnCount = 19;
+     private int windowWidth = tileSize * columnCount;
+     private int windowHeight = tileSize * rowCount;
 
      final int actualWindowWidth = windowWidth + 50;
      final int actualWindowHeight = windowHeight + 50;
 
-     Settings appSettings = new Settings();
+     private Settings appSettings = new Settings();
 
-     public static boolean startMusic = true;
+     private static boolean startMusic = true;
 
      public static void main(String[] args) {
          App app = new App();   // <-- create App instance

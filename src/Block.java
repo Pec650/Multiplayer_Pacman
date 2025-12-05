@@ -19,14 +19,6 @@ abstract class Block {
         y = startY;
     }
 
-    public boolean collided(Tile tile) {
-        // COLLISION FORMULA
-        return x < tile.x + tile.width &&
-                x + width > tile.x &&
-                y < tile.y + tile.height &&
-                y + height > tile.y;
-    }
-
     protected BufferedImage[] setSpriteFrames(String dir, int frames, int row, int col, int spriteWidth, int spriteHeight) {
         BufferedImage[] retVal = new BufferedImage[frames];
         if (row * col == frames) {

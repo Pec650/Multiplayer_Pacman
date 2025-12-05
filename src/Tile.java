@@ -17,5 +17,11 @@ public class Tile extends Block {
         startY = y;
     }
 
-
+    public boolean collided(Tile tile) {
+        // COLLISION FORMULA
+        return x < tile.x + tile.width &&
+                x + width > tile.x &&
+                y < tile.y + tile.height &&
+                y + height > tile.y;
+    }
 }
