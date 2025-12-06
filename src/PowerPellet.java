@@ -7,7 +7,7 @@ public class PowerPellet extends Tile {
 
     PowerPellet(int x, int y, int width, int height) {
         super(null, x, y, width, height);
-        animation = setSpriteFrames("./Sprites/Foods/PowerPellet.png", 5, 1, 5, 16, 16);
+        animation = setSpriteFrames("/Sprites/Foods/PowerPellet.png", 5, 1, 5, 16, 16);
         sprite = animation[curFrame];
     }
 

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="ManPac">
+    <output-path>$PROJECT_DIR$/out/artifacts/ManPac</output-path>
+    <root id="archive" name="ManPac.jar">
+      <element id="module-output" name="Reverse_Pacman" />
+    </root>
+  </artifact>
+</component>

@@ -30,7 +30,7 @@ public class Pacman extends Entity {
     }
 
     private void setSprites() {
-        move = setSpriteFrames("./Sprites/Pacman/Move.png", 7, 1, 7, 16, 16);
+        move = setSpriteFrames("/Sprites/Pacman/Move.png", 7, 1, 7, 16, 16);
     }
 
     public void updateSprites() {
@@ -54,7 +54,7 @@ public class Pacman extends Entity {
             case MOVE:
                 sprite = rotateSprite(move[(curFrame++) % 7], degrees);
                 if (!pacmanSoundEffect.isPlaying()) {
-                    pacmanSoundEffect.playLoop(getClass().getResource("SoundEffects/pacman_chomp.wav"));
+                    pacmanSoundEffect.playLoop(getClass().getResource("/SoundEffects/pacman_chomp.wav"));
                 }
                 break;
         }

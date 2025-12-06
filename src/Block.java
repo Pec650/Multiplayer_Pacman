@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URL;
 
 abstract class Block {
     protected int x;
@@ -23,6 +24,9 @@ abstract class Block {
         BufferedImage[] retVal = new BufferedImage[frames];
         if (row * col == frames) {
             try {
+                URL url = getClass().getResource(dir);
+                System.out.println("Loading: " + dir + " -> " + url);
+
                 BufferedImage temp = ImageIO.read(getClass().getResource(dir));
                 retVal = getSpriteFrames(temp, row, col, spriteWidth, spriteHeight);
             } catch(IOException e) {

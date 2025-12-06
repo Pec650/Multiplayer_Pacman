@@ -53,7 +53,7 @@ public class App implements KeyListener {
              // Load the image once
              {
                  try {
-                     img = ImageIO.read(getClass().getResource("./Sprites/pac.png")); // path to your image
+                     img = ImageIO.read(getClass().getResource("/Sprites/pac.png")); // path to your image
                  } catch (Exception e) {
                      e.printStackTrace();
                  }
@@ -75,7 +75,7 @@ public class App implements KeyListener {
 
                  g.setColor(Color.WHITE);
                  try {
-                     Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+                     Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Fonts/ByteBounce.ttf")).deriveFont(40f);
                      GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
                      g.setFont(pixelFont);
                  } catch (Exception e) {
@@ -147,7 +147,7 @@ public class App implements KeyListener {
              // Load the image once
              {
                  try {
-                     String dir = (winner == 1) ? "./Sprites/Pacman/Right.png" : "./Sprites/RedGhost/Idle.png";
+                     String dir = (winner == 1) ? "/Sprites/Pacman/Right.png" : "/Sprites/RedGhost/Idle.png";
                      img = ImageIO.read(getClass().getResource(dir));
                  } catch (Exception e) {
                      e.printStackTrace();
@@ -170,7 +170,7 @@ public class App implements KeyListener {
 
                  g.setColor(Color.WHITE);
                  try {
-                     Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+                     Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Fonts/ByteBounce.ttf")).deriveFont(40f);
                      GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
                      g.setFont(pixelFont);
                  } catch (Exception e) {

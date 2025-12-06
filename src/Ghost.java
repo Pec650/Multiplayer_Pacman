@@ -45,12 +45,12 @@ public class Ghost extends Entity {
             case color.RED -> ghostDIR = "RedGhost";
         }
 
-        start = setSpriteFrames("./Sprites/" + ghostDIR +"/Start.png", 9, 1, 9, 16, 16);
-        up = setSpriteFrames("./Sprites/" + ghostDIR +"/Up.png", 9, 1, 9, 16, 16);
-        down = setSpriteFrames("./Sprites/" + ghostDIR +"/Down.png", 9, 1, 9, 16, 16);
-        left = setSpriteFrames("./Sprites/" + ghostDIR +"/Left.png", 9, 1, 9, 16, 16);
-        right = setSpriteFrames("./Sprites/" + ghostDIR +"/Right.png", 9, 1, 9, 16, 16);
-        scared = setSpriteFrames("./Sprites/Scared_Ghost.png", 9, 1, 9, 16, 16);
+        start = setSpriteFrames("/Sprites/" + ghostDIR +"/Start.png", 9, 1, 9, 16, 16);
+        up = setSpriteFrames("/Sprites/" + ghostDIR +"/Up.png", 9, 1, 9, 16, 16);
+        down = setSpriteFrames("/Sprites/" + ghostDIR +"/Down.png", 9, 1, 9, 16, 16);
+        left = setSpriteFrames("/Sprites/" + ghostDIR +"/Left.png", 9, 1, 9, 16, 16);
+        right = setSpriteFrames("/Sprites/" + ghostDIR +"/Right.png", 9, 1, 9, 16, 16);
+        scared = setSpriteFrames("/Sprites/Scared_Ghost.png", 9, 1, 9, 16, 16);
     }
 
     public void updateSprites() {
@@ -60,7 +60,7 @@ public class Ghost extends Entity {
                 curFrame = (curFrame + 1) % 9;
                 sprite = start[curFrame];
                 if (!ghostSoundEffect.isPlaying()) {
-                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                    ghostSoundEffect.playLoop(getClass().getResource("/SoundEffects/ghost_move.wav"));
                 }
                 break;
             case MOVE:
@@ -72,12 +72,12 @@ public class Ghost extends Entity {
                     case R -> sprite = right[curFrame];
                 }
                 if (!ghostSoundEffect.isPlaying()) {
-                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                    ghostSoundEffect.playLoop(getClass().getResource("/SoundEffects/ghost_move.wav"));
                 }
                 break;
             case SCARED:
                 if (!ghostSoundEffect.isPlaying()) {
-                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_scared_move.wav"));
+                    ghostSoundEffect.playLoop(getClass().getResource("/SoundEffects/ghost_scared_move.wav"));
                 }
                 curFrame = (curFrame + 1) % 9;
                 scareTime -= 1;
@@ -105,7 +105,7 @@ public class Ghost extends Entity {
                 scareTime -= 1;
                 blinkFrame = (blinkFrame + 1) % 4;
                 if (!ghostSoundEffect.isPlaying()) {
-                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                    ghostSoundEffect.playLoop(getClass().getResource("/SoundEffects/ghost_move.wav"));
                 }
                 if (blinkFrame > 2) {
                     sprite = null;

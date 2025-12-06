@@ -84,7 +84,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
         setFocusable(true);
 
-        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Wall.png"))).getImage();
+        wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Sprites/Walls/wall.png"))).getImage();
 
         loadMap();
 
@@ -112,7 +112,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         timeTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
         timeTextLabel.setVerticalAlignment(SwingConstants.CENTER);
         try {
-            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Fonts/ByteBounce.ttf")).deriveFont(40f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
             timeTextLabel.setFont(pixelFont);
         } catch (Exception e) {
@@ -126,7 +126,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         scoreTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
         scoreTextLabel.setVerticalAlignment(SwingConstants.CENTER);
         try {
-            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Fonts/ByteBounce.ttf")).deriveFont(40f);
             GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
             scoreTextLabel.setFont(pixelFont);
         } catch (Exception e) {
