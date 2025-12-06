@@ -3,6 +3,7 @@ import java.awt.image.BufferedImage;
 public class PowerPellet extends Tile {
     private BufferedImage[] animation;
     private int curFrame = 0;
+    private boolean hasEnded = false;
 
     PowerPellet(int x, int y, int width, int height) {
         super(null, x, y, width, height);
@@ -11,7 +12,13 @@ public class PowerPellet extends Tile {
     }
 
     public void updateSprites() {
-        curFrame = (curFrame + 1) % (5 * 2);
-        sprite = animation[curFrame / 2];
+        if (!hasEnded) {
+            curFrame = (curFrame + 1) % (5 * 2);
+            sprite = animation[curFrame / 2];
+        }
+    }
+
+    public void endAnim() {
+        hasEnded = true;
     }
 }

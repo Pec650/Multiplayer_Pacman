@@ -19,7 +19,7 @@ public class Ghost extends Entity {
     public BufferedImage sprite;
 
     enum States {
-        START, IDLE, MOVE, SCARED, RESPAWNED;
+        START, IDLE, MOVE, SCARED, RESPAWNED, END;
     }
     private States currentState = States.START;
     private int curFrame = 0;
@@ -59,7 +59,9 @@ public class Ghost extends Entity {
             case IDLE:
                 curFrame = (curFrame + 1) % 9;
                 sprite = start[curFrame];
-                ghostSoundEffect.stop();
+                if (!ghostSoundEffect.isPlaying()) {
+                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                }
                 break;
             case MOVE:
                 curFrame = (curFrame + 1) % 9;
@@ -99,10 +101,12 @@ public class Ghost extends Entity {
                 }
                 break;
             case RESPAWNED:
-                ghostSoundEffect.stop();
                 curFrame = (curFrame + 1) % 9;
                 scareTime -= 1;
                 blinkFrame = (blinkFrame + 1) % 4;
+                if (!ghostSoundEffect.isPlaying()) {
+                    ghostSoundEffect.playLoop(getClass().getResource("SoundEffects/ghost_move.wav"));
+                }
                 if (blinkFrame > 2) {
                     sprite = null;
                 } else {
@@ -112,6 +116,9 @@ public class Ghost extends Entity {
                 if (respawnTime <= 0) {
                     currentState = States.START;
                 }
+                break;
+            case END:
+                ghostSoundEffect.stop();
                 break;
         }
     }
@@ -123,6 +130,23 @@ public class Ghost extends Entity {
     }
 
     public void updateDirection(Direction direction, HashSet<Tile> walls) {
+        if (isScared()) {
+            switch (direction) {
+                case U:
+                    direction = Direction.D;
+                    break;
+                case D:
+                    direction = Direction.U;
+                    break;
+                case L:
+                    direction = Direction.R;
+                    break;
+                case R:
+                    direction = Direction.L;
+                    break;
+            }
+        }
+
         if (this.direction == direction || isRespawning()) {
             return;
         }
@@ -170,6 +194,7 @@ public class Ghost extends Entity {
 
     public void die() {
         reset();
+        ghostSoundEffect.stop();
         respawnTime = 75;
         blinkFrame = 0;
         currentState = Ghost.States.RESPAWNED;
@@ -178,6 +203,7 @@ public class Ghost extends Entity {
     public void reset() {
         x = startX;
         y = startY;
+        ghostSoundEffect.stop();
         direction = Direction.STOP;
         updateSpeed(4);
         currentState = Ghost.States.START;

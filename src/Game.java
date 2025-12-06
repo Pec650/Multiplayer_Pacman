@@ -19,8 +19,14 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private int windowHeight;
     private App app;
 
-    private Image wallImage;
+    private int delay = 0;
+    private int curTime = 120; // 2 minutes
+    private JPanel timeText;
+    JLabel scoreTextLabel;
+    private JPanel scoreText;
+    JLabel timeTextLabel;
 
+    private Image wallImage;
 
     //X = wall, O = skip, P = pac man, ' ' = food
     //Ghosts: b = blue, o = orange, p = pink, r = red
@@ -54,10 +60,13 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     private Ghost ghost;
     private Pacman pacman;
 
-    public int score = 0;
-    public boolean gameOver = false;
+    private int score = 0;
+    private boolean gameOver = false;
 
-    public Timer gameLoop;
+    PauseOverlay overlay;
+    private boolean isPaused = false;
+
+    private Timer gameLoop;
 
     Game(int tileSize, int rowCount, int columnCount, int windowWidth, int windowHeight, App app) {
         this.tileSize = tileSize;
@@ -78,6 +87,64 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         wallImage = new ImageIcon(Objects.requireNonNull(getClass().getResource("./Sprites/Walls/Wall.png"))).getImage();
 
         loadMap();
+
+        overlay = new PauseOverlay();
+        app.window.setGlassPane(overlay);
+
+        timeText = new JPanel();
+        timeText.setBackground(Color.BLACK);
+        timeText.setLayout(new BorderLayout());
+        int panelWidth = 300;
+        Dimension fixedSize = new Dimension(panelWidth, 0);
+        timeText.setPreferredSize(fixedSize);
+        timeText.setMinimumSize(fixedSize);
+        timeText.setMaximumSize(fixedSize);
+
+        scoreText = new JPanel();
+        scoreText.setBackground(Color.BLACK);
+        scoreText.setLayout(new BorderLayout());
+        scoreText.setPreferredSize(fixedSize);
+        scoreText.setMinimumSize(fixedSize);
+        scoreText.setMaximumSize(fixedSize);
+
+        timeTextLabel = new JLabel();
+        updateTimeText();
+        timeTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        timeTextLabel.setVerticalAlignment(SwingConstants.CENTER);
+        try {
+            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
+            timeTextLabel.setFont(pixelFont);
+        } catch (Exception e) {
+            e.printStackTrace();
+            timeTextLabel.setFont(new Font("Arial", Font.BOLD, 25));
+        }
+        timeText.add(timeTextLabel, BorderLayout.CENTER);
+
+        scoreTextLabel = new JLabel();
+        updateScoreText();
+        scoreTextLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        scoreTextLabel.setVerticalAlignment(SwingConstants.CENTER);
+        try {
+            Font pixelFont = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("Fonts/ByteBounce.ttf")).deriveFont(40f);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(pixelFont);
+            scoreTextLabel.setFont(pixelFont);
+        } catch (Exception e) {
+            e.printStackTrace();
+            scoreTextLabel.setFont(new Font("Arial", Font.BOLD, 25));
+        }
+        scoreText.add(scoreTextLabel, BorderLayout.CENTER);
+
+        GridBagConstraints gbcText = new GridBagConstraints();
+        gbcText.gridx = 0;
+        gbcText.gridy = 0;
+        gbcText.weightx = 1;
+        gbcText.anchor = GridBagConstraints.CENTER;
+        gbcText.fill = GridBagConstraints.VERTICAL;
+        app.window.add(timeText, gbcText);
+
+        gbcText.gridx = 2;
+        app.window.add(scoreText, gbcText);
 
         gameLoop = new Timer(1000 / FPS, this);
         gameLoop.start();
@@ -136,22 +203,17 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             pallete.updateSprites();
         }
 
-        g.drawImage(ghost.sprite, ghost.x, ghost.y, ghost.width, ghost.height, null);
-        ghost.updateSprites();
         g.drawImage(pacman.sprite, pacman.x, pacman.y, pacman.width, pacman.height, null);
-        pacman.updateSprites();
-
-        g.setFont(new Font("Arial", Font.PLAIN, 18));
-        if (gameOver) {
-            g.drawString("Game Over: " + score, tileSize/2, tileSize/2);
-        } else {
-            g.drawString("x" + pacman.getLives() + " | Score: " + score, tileSize/2, tileSize/2);
+        g.drawImage(ghost.sprite, ghost.x, ghost.y, ghost.width, ghost.height, null);
+        if (!isPaused) {
+            pacman.updateSprites();
+            ghost.updateSprites();
         }
     }
 
-    public void move() {
+    private void move() {
         if (foods.isEmpty()) {
-            endGame();
+            endGame(1);
             return;
         }
 
@@ -198,11 +260,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             if (ghost.isScared()) {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/tasty.wav"));
                 ghost.die();
+                score += 200;
             } else if (!ghost.isRespawning()) {
                 SoundPlayer.playOnce(App.class.getResource("/SoundEffects/pacman_death.wav"));
                 pacman.loseLife();
                 if (pacman.getLives() == 0) {
-                    endGame();
+                    endGame(2);
                     return;
                 }
                 resetPositions();
@@ -276,23 +339,75 @@ public class Game extends JPanel implements ActionListener, KeyListener {
                 a.y < tileSize || a.y > windowHeight - tileSize * 2;
     }
 
+    private void updateTimeText() {
+        if (curTime < 0) {
+            endGame(2);
+        }
+        int minutes = curTime / 60;
+        int seconds = curTime % 60;
+        curTime -= 1;
+        timeTextLabel.setText("<html><span style='color:white;'>Time: " + minutes + ":" + String.format("%02d", seconds)  + "</span></html>");
+        timeText.revalidate();
+        timeText.repaint();
+    }
+
+    private void updateScoreText() {
+        scoreTextLabel.setText("<html><span style='color:white;'>Lives: " + pacman.getLives() + "<br><br>Score: " + score + "</span></html>");
+        scoreTextLabel.revalidate();
+        scoreTextLabel.repaint();
+    }
+
     public void resetPositions() {
         ghost.reset();
         pacman.reset();
     }
 
-    private void endGame() {
+    private void triggerPause() {
+        if (!isPaused) {
+            app.window.getGlassPane().setVisible(true);
+            gameLoop.stop();
+            ghost.stop();
+            pacman.stop();
+        } else {
+            app.window.getGlassPane().setVisible(false);
+            gameLoop.start();
+        }
+        isPaused = !isPaused;
+    }
+
+    private void endGame(int winner) { // 1: Pacman Wins | 2: Ghost Wins
         gameOver = true;
         pacman.updateState(Pacman.States.IDLE);
-        ghost.updateState(Ghost.States.IDLE);
+        pacman.stop();
+        ghost.updateState(Ghost.States.END);
+        ghost.stop();
+        for (PowerPellet pallete : powerPelletes) {
+            pallete.endAnim();
+        }
         gameLoop.stop();
+        switch (winner) {
+            case 1:
+            case 2:
+                app.endGame(winner);
+                break;
+            default:
+                app.startMenu();
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Updates every 24 frames per second
-        move();
-        repaint();
+        if (!isPaused) {
+            if ((++delay) >= FPS) {
+                updateTimeText();
+                delay = 0;
+            }
+            if (!gameOver) {
+                updateScoreText();
+                move();
+            }
+            repaint();
+        }
     }
 
     @Override
@@ -301,34 +416,40 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             appSettings.toggleFullScreen(app.window);
         }
 
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-                ghost.controlDirection = Entity.Direction.U;
-                break;
-            case KeyEvent.VK_S:
-                ghost.controlDirection = Entity.Direction.D;
-                break;
-            case KeyEvent.VK_A:
-                ghost.controlDirection = Entity.Direction.L;
-                break;
-            case KeyEvent.VK_D:
-                ghost.controlDirection = Entity.Direction.R;
-                break;
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            triggerPause();
         }
 
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                pacman.controlDirection = Entity.Direction.U;
-                break;
-            case KeyEvent.VK_DOWN:
-                pacman.controlDirection = Entity.Direction.D;
-                break;
-            case KeyEvent.VK_LEFT:
-                pacman.controlDirection = Entity.Direction.L;
-                break;
-            case KeyEvent.VK_RIGHT:
-                pacman.controlDirection = Entity.Direction.R;
-                break;
+        if (!gameOver) {
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_W:
+                    ghost.controlDirection = Entity.Direction.U;
+                    break;
+                case KeyEvent.VK_S:
+                    ghost.controlDirection = Entity.Direction.D;
+                    break;
+                case KeyEvent.VK_A:
+                    ghost.controlDirection = Entity.Direction.L;
+                    break;
+                case KeyEvent.VK_D:
+                    ghost.controlDirection = Entity.Direction.R;
+                    break;
+            }
+
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_UP:
+                    pacman.controlDirection = Entity.Direction.U;
+                    break;
+                case KeyEvent.VK_DOWN:
+                    pacman.controlDirection = Entity.Direction.D;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    pacman.controlDirection = Entity.Direction.L;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    pacman.controlDirection = Entity.Direction.R;
+                    break;
+            }
         }
     }
 
