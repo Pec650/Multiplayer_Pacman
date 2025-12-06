@@ -20,4 +20,14 @@ public class Settings {
             window.repaint();
         }
     }
+
+    public void forceMinScreen(JFrame window) {
+        if (device.getFullScreenWindow() == window) {
+            device.setFullScreenWindow(null);
+            window.dispose();
+            window.setUndecorated(false);
+            window.setVisible(true);
+            window.repaint();
+        }
+    }
 }

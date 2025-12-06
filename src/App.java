@@ -7,7 +7,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 public class App implements KeyListener {
-     public JFrame window = new JFrame("Pacman");
+     public JFrame window = new JFrame("ManPac");
      private MusicPlayer music = new MusicPlayer();  // <--- add this
      enum AppStates {
          START, GAME, WIN
@@ -209,6 +209,10 @@ public class App implements KeyListener {
 
      @Override
      public void keyPressed(KeyEvent e) {
+         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+             appSettings.forceMinScreen(window);
+         }
+
          if (e.getKeyCode() == KeyEvent.VK_T) {
              appSettings.toggleFullScreen(window);
          }
